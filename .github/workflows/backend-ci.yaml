@@ -85,7 +85,7 @@ jobs:
       - name: Run tests
         run: pipenv run test
 
-  build:
+    build:
     runs-on: ubuntu-latest
     needs: [lint, test]
     defaults:
@@ -94,6 +94,32 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential python3-dev
+
+      - name: Cache pipenv virtualenv and pip cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-backend-pipenv-${{ hashFiles('starter/backend/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-pipenv-
+
+      - name: Install Pipenv
+        run: pip install pipenv
+
+      - name: Install dependencies
+        run: pipenv install --dev
 
       - name: Build Docker image
         run: docker build -t mp-backend:${{ github.sha }} .
