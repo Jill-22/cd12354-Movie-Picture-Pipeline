@@ -53,7 +53,7 @@ jobs:
       - name: Run tests
         run: CI=true npm test
 
-    build:
+  build:
     runs-on: ubuntu-latest
     needs: [lint, test]
     defaults:
